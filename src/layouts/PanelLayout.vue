@@ -1,21 +1,20 @@
 <template>
-  <header class="header">
-    <slot name="header" />
-  </header>
+  <Header class="header" />
   <main class="content">
-    <aside class="content__left">
-      <slot name="left-panel" />
-    </aside>
+    <ToolsDrawer />
     <div class="content__main">
-      <slot name="main" />
+      <RouterView />
     </div>
-    <aside class="content__right">
-      <slot name="right-panel" />
-    </aside>
+    <aside class="content__right"></aside>
   </main>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { RouterView } from "vue-router";
+import Header from "@/components/layouts/panelLayout/Header.vue";
+import ToolsDrawer from "@/components/layouts/panelLayout/ToolsDrawer.vue";
+</script>
+
 <style lang="scss" scoped>
 $header-height: 32px;
 $panel-width: 160px;

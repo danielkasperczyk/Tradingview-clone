@@ -8,3 +8,9 @@ body {
 *, *::after, *::before {
     box-sizing: border-box;
 }
+button {
+    border: none;
+    outline: none;
+    background-color: transparent;
+    cursor: pointer;
+}
