@@ -1,20 +1,19 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <CanvasLayout>
-    <template #canvas="{ height, width }">
-      <Canvas @drawStart="drawStart" :height="height" :width="width" />
+    <template #canvas="{ height, width, mousePosition }">
+      <Canvas :height="height" :width="width" :mouse-position="mousePosition" />
+    </template>
+    <template #cursor="{ mousePosition }">
+      <Cursor :mouse-position="mousePosition" />
     </template>
   </CanvasLayout>
 </template>
 
 <script setup lang="ts">
 import CanvasLayout from "@/layouts/CanvasLayout.vue";
-import Canvas, { Position } from "@/components/Canvas.vue";
-import useCanvas from "@/composables/useCanvas";
-
-// const { draw } = useCanvas(document.querySelector(".canvas"));
-
-const drawStart = (position: Position) => console.log(position);
+import Canvas from "@/components/layouts/canvasLayout/Canvas.vue";
+import Cursor from "@/components/layouts/canvasLayout/Cursor.vue";
 </script>
 
 <style lang="scss" scoped></style>

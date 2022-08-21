@@ -1,11 +1,17 @@
 <template>
   <aside class="tools-drawer">
-    <ToolsDrawerItems />
-    <ToolsDrawerItems />
+    <ToolsDrawerItems
+      v-for="toolsList in tools"
+      :key="toolsList.id"
+      :tools="toolsList.tools"
+    />
   </aside>
 </template>
 <script lang="ts" setup>
 import ToolsDrawerItems from "./ToolsDrawerItems.vue";
+import useTools from "@/composables/useTools";
+
+const { tools } = useTools();
 </script>
 <style lang="scss" scoped>
 $panel-width: 48px;
