@@ -3,9 +3,7 @@
   <CanvasLayout>
     <template #canvas="{ height, width, mousePosition }">
       <Canvas :height="height" :width="width" :mouse-position="mousePosition" />
-    </template>
-    <template #cursor="{ mousePosition }">
-      <Cursor :mouse-position="mousePosition" />
+      <Cursor :height="height" :width="width" :mouse-position="mousePosition" />
     </template>
   </CanvasLayout>
 </template>

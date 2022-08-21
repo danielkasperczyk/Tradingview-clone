@@ -47,6 +47,6 @@ export default defineComponent({});
 </script>
 <style lang="scss" scoped>
 .canvas {
-  position: relative;
+  position: absolute;
 }
 </style>

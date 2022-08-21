@@ -6,7 +6,12 @@
       :height="canvasSize.height"
       :mouse-position="mousePosition"
     />
-    <slot name="cursor" :mouse-position="mousePosition" />
+    <slot
+      name="cursor"
+      :mouse-position="mousePosition"
+      :width="canvasSize.width"
+      :height="canvasSize.height"
+    />
   </div>
 </template>
 <script lang="ts" setup>
