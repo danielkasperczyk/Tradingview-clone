@@ -6,7 +6,8 @@ export interface Tool {
   icon: Icons;
   positionsRequired: 1 | 2;
   beginPath: boolean;
-  draw: (ctx: CanvasRenderingContext2D, positions: Position[]) => void;
+  draw: (ctx: CanvasRenderingContext2D, start: Position, end: Position) => void;
+  drawEnd?: (ctx: CanvasRenderingContext2D) => void;
 }
 
 export interface Tools {
