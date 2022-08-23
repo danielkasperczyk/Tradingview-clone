@@ -1,4 +1,4 @@
-import { reactive, ref, toRaw } from "vue";
+import { reactive, ref } from "vue";
 import useTools from "@/composables/useTools";
 
 type Position = {
@@ -51,8 +51,7 @@ const useCanvas = () => {
       positions.end = position;
       drawing.value = false;
       if (activeTool.value?.drawEnd) activeTool.value.drawEnd(ctx);
-      const pos = JSON.parse(JSON.stringify(positions));
-      saveShape(activeTool.value.name, pos);
+      saveShape(activeTool.value.name, Object.assign({}, positions));
       ctx.save();
       resetPosition();
     }
@@ -72,7 +71,6 @@ const useCanvas = () => {
   };
 
   const saveShape = (tool = "line", position: Positions) => {
-    console.log(position);
     savedShapes.push({ tool, position });
   };
 
