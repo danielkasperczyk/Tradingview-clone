@@ -24,7 +24,7 @@ type CanvasSize = {
 const savedShapes: SavedShapes[] = [];
 
 const useCanvas = () => {
-  const { activeTool, toolDraw } = useTools();
+  const { activeTool, setActiveTool } = useTools();
   const drawing = ref(false);
   const positions = reactive<Positions>({
     start: {
@@ -55,6 +55,7 @@ const useCanvas = () => {
       saveShape(activeTool.value.name, Object.assign({}, positions));
       ctx.save();
       resetPosition();
+      setActiveTool(null);
     }
   };
 
