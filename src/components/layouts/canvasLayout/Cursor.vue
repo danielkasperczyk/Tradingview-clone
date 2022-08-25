@@ -9,6 +9,8 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, watch } from "vue";
+import useCanvas from "@/composables/useCanvas";
+import cursor from "@/utils/canvasTools/cursors/canvasCursor";
 
 type Props = {
   width: number;
@@ -22,37 +24,28 @@ const props = defineProps<Props>();
 
 const canvasCursor = ref<HTMLCanvasElement>();
 const ctx = ref<CanvasRenderingContext2D>();
+const { clearCanvas } = useCanvas();
 
 onMounted(() => {
   if (!canvasCursor.value) return;
   ctx.value = canvasCursor.value.getContext("2d") as CanvasRenderingContext2D;
 });
 
-const createCursor = (position: { x: number; y: number }) => {
+const createCursor = () => {
   if (!ctx.value) return;
-  ctx.value.clearRect(0, 0, props.width, props.height);
-  ctx.value.strokeStyle = "#999999";
-  // X AXIS
-  ctx.value.beginPath();
-  ctx.value.setLineDash([4, 4]);
-  ctx.value.moveTo(0, position.y);
-  ctx.value.lineTo(props.width, position.y);
-  ctx.value.stroke();
-
-  // Y AXIS
-  ctx.value.beginPath();
-  ctx.value.setLineDash([4, 4]);
-  ctx.value.moveTo(position.x, 0);
-  ctx.value.lineTo(position.x, props.height);
-  ctx.value.stroke();
+  clearCanvas(ctx.value, { width: props.width, height: props.height });
+  cursor.draw(ctx.value, props.mousePosition, {
+    x: props.width,
+    y: props.height,
+  });
 };
 
 watch(
   () => props.mousePosition,
-  (position) => {
+  () => {
     if (!ctx.value) return;
     requestAnimationFrame(() => {
-      createCursor(position);
+      createCursor();
     });
   },
   { deep: true }

@@ -16,6 +16,11 @@ type SavedShapes = {
   position: Positions;
 };
 
+type CanvasSize = {
+  width: number;
+  height: number;
+};
+
 const savedShapes: SavedShapes[] = [];
 
 const useCanvas = () => {
@@ -39,10 +44,6 @@ const useCanvas = () => {
 
   const setPositions = (ctx: CanvasRenderingContext2D, position: Position) => {
     if (!activeTool.value) return;
-    /* if click first time
-     *  - set start position
-     *  - set drawing
-     */
     if (!drawing.value) {
       ctx.save();
       positions.start = position;
@@ -57,21 +58,11 @@ const useCanvas = () => {
     }
   };
 
-  const addMockTool = (
+  const clearCanvas = (
     ctx: CanvasRenderingContext2D,
-    tempEndPosition: Position
+    canvasSize: CanvasSize
   ) => {
-    if (!activeTool.value) return;
-    if (!drawing.value) return;
-
-    ctx.clearRect(0, 0, 900, 700);
-    redrawTools(ctx);
-    ctx.restore();
-    toolDraw(ctx, positions.start, tempEndPosition);
-  };
-
-  const saveShape = (tool = "line", position: Positions) => {
-    savedShapes.push({ tool, position });
+    ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
   };
 
   const redrawTools = (ctx: CanvasRenderingContext2D) => {
@@ -80,7 +71,17 @@ const useCanvas = () => {
     });
   };
 
-  return { positions, setPositions, addMockTool };
+  const saveShape = (tool = "line", position: Positions) => {
+    savedShapes.push({ tool, position });
+  };
+
+  return {
+    positions,
+    drawing,
+    setPositions,
+    clearCanvas,
+    redrawTools,
+  };
 };
 
 export default useCanvas;

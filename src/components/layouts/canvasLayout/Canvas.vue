@@ -5,20 +5,13 @@
     :height="props.height"
     ref="canvas"
     @click="handleDraw"
-    @mousemove="addMockTool(ctx, mousePosition)"
+    @mousemove="handleMouseMove"
   >
   </canvas>
 </template>
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
 import useCanvas from "@/composables/useCanvas";
-/* CANVAS
- *  - clear everything in canvas
- *  - remember positions of tools
- *  - use tool to draw
- *    - complete drawing
- *    - show sample of drawing if it is not completed but started
- */
 
 type Props = {
   width: number;
@@ -37,8 +30,9 @@ const props = withDefaults(defineProps<Props>(), {
 const canvas = ref<HTMLCanvasElement>();
 const ctx = ref<CanvasRenderingContext2D>();
 
-const { setPositions, addMockTool } = useCanvas();
-
+const { positions, drawing, setPositions, clearCanvas, redrawTools } =
+  useCanvas();
+const { activeTool, toolDraw } = useTools();
 onMounted(() => {
   if (!canvas.value) return;
   ctx.value = canvas.value.getContext("2d") as CanvasRenderingContext2D;
@@ -51,9 +45,20 @@ const handleDraw = () => {
     y: props.mousePosition.y,
   });
 };
+const handleMouseMove = () => {
+  requestAnimationFrame(() => {
+    if (!ctx.value) return;
+    if (!activeTool.value) return;
+    if (!drawing.value) return;
+    clearCanvas(ctx.value, { width: props.width, height: props.height });
+    redrawTools(ctx.value);
+    toolDraw(ctx.value, positions.start, props.mousePosition);
+  });
+};
 </script>
 <script lang="ts">
 import { defineComponent } from "vue";
+import useTools from "@/composables/useTools";
 export default defineComponent({});
 </script>
 <style lang="scss" scoped>

@@ -4,8 +4,6 @@ const lineTool: Tool = {
   id: "1",
   name: "Line",
   icon: "line-icon",
-  positionsRequired: 2,
-  beginPath: true,
   draw: (ctx, start, end) => {
     ctx.beginPath();
     ctx.moveTo(start.x, start.y);

@@ -1,11 +1,9 @@
-type Icons = "default-icon" | "line-icon";
+type Icons = "default-icon" | "line-icon" | "cursor";
 
 export interface Tool {
   id: string;
   name: string;
   icon: Icons;
-  positionsRequired: 1 | 2;
-  beginPath: boolean;
   draw: (ctx: CanvasRenderingContext2D, start: Position, end: Position) => void;
   drawEnd?: (ctx: CanvasRenderingContext2D) => void;
 }

@@ -1,5 +1,5 @@
 <template>
-  <header>Logo</header>
+  <header></header>
 </template>
 
 <script lang="ts" setup></script>
