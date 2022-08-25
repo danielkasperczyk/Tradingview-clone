@@ -30,8 +30,14 @@ const props = withDefaults(defineProps<Props>(), {
 const canvas = ref<HTMLCanvasElement>();
 const ctx = ref<CanvasRenderingContext2D>();
 
-const { positions, drawing, setPositions, clearCanvas, redrawTools } =
-  useCanvas();
+const {
+  positions,
+  drawing,
+  setPositions,
+  clearCanvas,
+  redrawTools,
+  findClosestShape,
+} = useCanvas();
 const { activeTool, toolDraw } = useTools();
 onMounted(() => {
   if (!canvas.value) return;
@@ -48,12 +54,21 @@ const handleDraw = () => {
 const handleMouseMove = () => {
   requestAnimationFrame(() => {
     if (!ctx.value) return;
-    if (!activeTool.value) return;
-    if (!drawing.value) return;
-    clearCanvas(ctx.value, { width: props.width, height: props.height });
-    redrawTools(ctx.value);
-    toolDraw(ctx.value, positions.start, props.mousePosition);
+    if (!activeTool.value && !drawing.value) {
+      findClosestShape(props.mousePosition);
+      return;
+    }
+    if (activeTool.value && drawing.value) {
+      animateIncompletedTool(ctx.value);
+      return;
+    }
   });
+};
+
+const animateIncompletedTool = (ctx: CanvasRenderingContext2D) => {
+  clearCanvas(ctx, { width: props.width, height: props.height });
+  redrawTools(ctx);
+  toolDraw(ctx, positions.start, props.mousePosition);
 };
 </script>
 <script lang="ts">

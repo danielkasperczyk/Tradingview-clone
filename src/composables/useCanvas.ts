@@ -1,5 +1,6 @@
 import { reactive, ref } from "vue";
 import useTools from "@/composables/useTools";
+import { getTool } from "@/utils/canvasTools/utils";
 
 type Position = {
   x: number;
@@ -68,12 +69,40 @@ const useCanvas = () => {
 
   const redrawTools = (ctx: CanvasRenderingContext2D) => {
     savedShapes.forEach((shape) => {
-      activeTool.value?.draw(ctx, shape.position.start, shape.position.end);
+      const tool = getTool(shape.tool);
+      if (!tool) return;
+      tool.draw(ctx, shape.position.start, shape.position.end);
     });
   };
 
-  const saveShape = (tool = "line", position: Positions) => {
+  const saveShape = (tool: string, position: Positions) => {
     savedShapes.push({ tool, position });
+  };
+
+  const findClosestShape = ({ x, y }: Position, dist = 1) => {
+    if (!savedShapes.length) return;
+    /* TODO:
+     * 1. Get tool with its method
+     * 2. Tool should has method to calculate if user hover on it
+     *    based on passed location and available distance far
+     *      - it would be nice to check if user hover SOMEWHERE on tool
+     *        not just on start or end
+     * 3. If user hover on it return it;
+     */
+    savedShapes.filter((shape) => {
+      console.log(getTool(shape.tool));
+    });
+    // const closestTool = savedShapes.find((tool) => {
+    //   return !!Object.values(tool.position)
+    //     .map((pos) => {
+    //       const savedX = pos.x - x >= -dist && pos.x - x <= dist;
+    //       const savedY = pos.y - y >= -dist && pos.y - y <= dist;
+    //       // console.log(pos.x - x, pos.y - y);
+    //       return savedX && savedY;
+    //     })
+    //     .filter(Boolean).length;
+    // });
+    // console.log(closestTool);
   };
 
   return {
@@ -82,6 +111,7 @@ const useCanvas = () => {
     setPositions,
     clearCanvas,
     redrawTools,
+    findClosestShape,
   };
 };
 
