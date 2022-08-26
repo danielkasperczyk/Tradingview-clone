@@ -1,6 +1,6 @@
 import type { Tool } from "@/utils/canvasTools/types";
 
-const canvasCursor: Tool = {
+const canvasCursor: Omit<Tool, "mouseOver"> = {
   id: "100",
   name: "Cursor",
   icon: "cursor",

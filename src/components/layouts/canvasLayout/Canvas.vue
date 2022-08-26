@@ -1,6 +1,11 @@
 <template>
   <canvas
-    class="canvas"
+    :class="[
+      'canvas',
+      {
+        'canvas--cursor-pointer': overShape,
+      },
+    ]"
     :width="props.width"
     :height="props.height"
     ref="canvas"
@@ -29,7 +34,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const canvas = ref<HTMLCanvasElement>();
 const ctx = ref<CanvasRenderingContext2D>();
-
 const {
   positions,
   drawing,
@@ -39,6 +43,9 @@ const {
   findClosestShape,
 } = useCanvas();
 const { activeTool, toolDraw } = useTools();
+
+const overShape = ref(false);
+
 onMounted(() => {
   if (!canvas.value) return;
   ctx.value = canvas.value.getContext("2d") as CanvasRenderingContext2D;
@@ -55,8 +62,12 @@ const handleMouseMove = () => {
   requestAnimationFrame(() => {
     if (!ctx.value) return;
     if (!activeTool.value && !drawing.value) {
-      findClosestShape(props.mousePosition);
-      return;
+      const shapes = findClosestShape(ctx.value, props.mousePosition);
+      if (!shapes) {
+        if (overShape.value) overShape.value = false;
+        return;
+      }
+      overShape.value = true;
     }
     if (activeTool.value && drawing.value) {
       animateIncompletedTool(ctx.value);
@@ -79,5 +90,9 @@ export default defineComponent({});
 <style lang="scss" scoped>
 .canvas {
   position: absolute;
+}
+
+.canvas--cursor-pointer {
+  cursor: pointer;
 }
 </style>
