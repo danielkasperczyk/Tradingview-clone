@@ -12,8 +12,8 @@ type Positions = {
   end: Position;
 };
 
-type SavedShapes = {
-  tool: string;
+export type SavedShape = {
+  toolId: string;
   position: Positions;
 };
 
@@ -22,7 +22,7 @@ type CanvasSize = {
   height: number;
 };
 
-const savedShapes: SavedShapes[] = [];
+const savedShapes: SavedShape[] = [];
 
 const useCanvas = () => {
   const { activeTool, setActiveTool } = useTools();
@@ -53,7 +53,7 @@ const useCanvas = () => {
       positions.end = position;
       drawing.value = false;
       if (activeTool.value?.drawEnd) activeTool.value.drawEnd(ctx);
-      saveShape(activeTool.value.name, Object.assign({}, positions));
+      saveShape(activeTool.value.id, Object.assign({}, positions));
       ctx.save();
       resetPosition();
       setActiveTool(null);
@@ -69,14 +69,14 @@ const useCanvas = () => {
 
   const redrawTools = (ctx: CanvasRenderingContext2D) => {
     savedShapes.forEach((shape) => {
-      const tool = getTool(shape.tool);
+      const tool = getTool(shape.toolId);
       if (!tool) return;
       tool.draw(ctx, shape.position.start, shape.position.end);
     });
   };
 
-  const saveShape = (tool: string, position: Positions) => {
-    savedShapes.push({ tool, position });
+  const saveShape = (toolId: string, position: Positions) => {
+    savedShapes.push({ toolId, position });
   };
 
   const findClosestShape = (
@@ -93,7 +93,7 @@ const useCanvas = () => {
      * 3. If user hover on it return it;
      */
     const overShapes = savedShapes.filter((shape) => {
-      const shapeTool = getTool(shape.tool);
+      const shapeTool = getTool(shape.toolId);
       if (!shapeTool) return false;
       return shapeTool.mouseOver(ctx, shape.position, mousePosition);
     });

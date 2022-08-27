@@ -9,7 +9,7 @@
     :width="props.width"
     :height="props.height"
     ref="canvas"
-    @click="handleDraw"
+    @click="handleClick"
     @mousemove="handleMouseMove"
   >
   </canvas>
@@ -17,6 +17,7 @@
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
 import useCanvas from "@/composables/useCanvas";
+import type { SavedShape } from "@/composables/useCanvas";
 
 type Props = {
   width: number;
@@ -44,30 +45,36 @@ const {
 } = useCanvas();
 const { activeTool, toolDraw } = useTools();
 
-const overShape = ref(false);
+const overShape = ref<SavedShape | null>(null);
 
 onMounted(() => {
   if (!canvas.value) return;
   ctx.value = canvas.value.getContext("2d") as CanvasRenderingContext2D;
 });
 
-const handleDraw = () => {
+const handleClick = () => {
   if (!ctx.value) return;
-  setPositions(ctx.value, {
-    x: props.mousePosition.x,
-    y: props.mousePosition.y,
-  });
+  if (activeTool.value) {
+    setPositions(ctx.value, {
+      x: props.mousePosition.x,
+      y: props.mousePosition.y,
+    });
+  } else if (!activeTool.value && overShape.value) {
+    // TODO: active selected tool and enable edit it
+  }
 };
+
 const handleMouseMove = () => {
   requestAnimationFrame(() => {
     if (!ctx.value) return;
     if (!activeTool.value && !drawing.value) {
       const shapes = findClosestShape(ctx.value, props.mousePosition);
+
       if (!shapes) {
-        if (overShape.value) overShape.value = false;
+        if (overShape.value) overShape.value = null;
         return;
       }
-      overShape.value = true;
+      overShape.value = shapes;
     }
     if (activeTool.value && drawing.value) {
       animateIncompletedTool(ctx.value);
