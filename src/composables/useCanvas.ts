@@ -27,6 +27,7 @@ const savedShapes: SavedShape[] = [];
 const useCanvas = () => {
   const { activeTool, setActiveTool } = useTools();
   const drawing = ref(false);
+  const edit = ref(false);
   const positions = reactive<Positions>({
     start: {
       x: 0,
@@ -84,14 +85,6 @@ const useCanvas = () => {
     mousePosition: Position
   ) => {
     if (!savedShapes.length) return;
-    /* TODO:
-     * 1. Get tool with its method
-     * 2. Tool should has method to calculate if user hover on it
-     *    based on passed location and available distance far
-     *      - it would be nice to check if user hover SOMEWHERE on tool
-     *        not just on start or end
-     * 3. If user hover on it return it;
-     */
     const overShapes = savedShapes.filter((shape) => {
       const shapeTool = getTool(shape.toolId);
       if (!shapeTool) return false;
@@ -102,13 +95,25 @@ const useCanvas = () => {
     return shape;
   };
 
+  const editShape = (
+    ctx: CanvasRenderingContext2D,
+    shape: SavedShape,
+    mousePosition: Position
+  ) => {
+    const tool = getTool(shape.toolId);
+    if (!tool) return;
+    tool.addCirclesOnEdges(ctx, shape.position);
+  };
+
   return {
     positions,
     drawing,
+    edit,
     setPositions,
     clearCanvas,
     redrawTools,
     findClosestShape,
+    editShape,
   };
 };
 

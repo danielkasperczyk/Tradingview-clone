@@ -15,7 +15,7 @@
   </canvas>
 </template>
 <script lang="ts" setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import useCanvas from "@/composables/useCanvas";
 import type { SavedShape } from "@/composables/useCanvas";
 
@@ -41,6 +41,7 @@ const {
   setPositions,
   clearCanvas,
   redrawTools,
+  editShape,
   findClosestShape,
 } = useCanvas();
 const { activeTool, toolDraw } = useTools();
@@ -61,6 +62,7 @@ const handleClick = () => {
     });
   } else if (!activeTool.value && overShape.value) {
     // TODO: active selected tool and enable edit it
+    editShape(ctx.value, overShape.value, props.mousePosition);
   }
 };
 
@@ -68,13 +70,13 @@ const handleMouseMove = () => {
   requestAnimationFrame(() => {
     if (!ctx.value) return;
     if (!activeTool.value && !drawing.value) {
-      const shapes = findClosestShape(ctx.value, props.mousePosition);
+      const shape = findClosestShape(ctx.value, props.mousePosition);
 
-      if (!shapes) {
+      if (!shape) {
         if (overShape.value) overShape.value = null;
         return;
       }
-      overShape.value = shapes;
+      overShape.value = shape;
     }
     if (activeTool.value && drawing.value) {
       animateIncompletedTool(ctx.value);
@@ -88,10 +90,25 @@ const animateIncompletedTool = (ctx: CanvasRenderingContext2D) => {
   redrawTools(ctx);
   toolDraw(ctx, positions.start, props.mousePosition);
 };
+
+watch(
+  () => overShape.value,
+  (overShape) => {
+    if (!ctx.value) return;
+    if (!overShape) {
+      clearCanvas(ctx.value, { height: props.height, width: props.width });
+      redrawTools(ctx.value);
+    }
+    if (overShape) {
+      editShape(ctx.value, overShape, props.mousePosition);
+    }
+  }
+);
 </script>
 <script lang="ts">
 import { defineComponent } from "vue";
 import useTools from "@/composables/useTools";
+import { getTool } from "@/utils/canvasTools/utils";
 export default defineComponent({});
 </script>
 <style lang="scss" scoped>

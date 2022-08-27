@@ -17,7 +17,18 @@ const lineTool: Tool = {
   },
   mouseOver(ctx, toolPosition, mousePosition) {
     const coords = getLinePoints(toolPosition.start, toolPosition.end);
-    return isInToolCoords(coords, mousePosition);
+    const mouseOver = isInToolCoords(coords, mousePosition);
+    return mouseOver;
+  },
+  addCirclesOnEdges(ctx, toolPosition) {
+    Object.values(toolPosition).forEach((position) => {
+      ctx.beginPath();
+      ctx.arc(position.x, position.y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+      ctx.stroke();
+      ctx.closePath();
+    });
   },
 };
 

@@ -16,6 +16,10 @@ export interface Tool {
     toolPosition: SavedToolPosition,
     mousePosition: Position
   ) => boolean;
+  addCirclesOnEdges: (
+    ctx: CanvasRenderingContext2D,
+    toolPosition: SavedToolPosition
+  ) => void;
 }
 
 export interface Tools {
