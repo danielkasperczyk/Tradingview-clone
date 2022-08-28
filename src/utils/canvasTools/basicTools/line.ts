@@ -9,7 +9,6 @@ const lineTool: Tool = {
   positionsRequired: 2,
   draw: (ctx, positions) => {
     ctx.beginPath();
-    console.log(positions);
     if (positions.length === 2) {
       const [start, end] = positions;
       ctx.moveTo(start.x, start.y);

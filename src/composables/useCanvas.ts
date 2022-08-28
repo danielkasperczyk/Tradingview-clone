@@ -23,7 +23,7 @@ const savedShapes: SavedShape[] = [];
 const useCanvas = () => {
   const { activeTool, setActiveTool } = useTools();
   const drawing = ref(false);
-  const edit = ref<SavedShape | boolean>(false);
+  const edit = ref<SavedShape | false>(false);
   const positions = ref<Position[]>([]);
 
   const resetPosition = () => {

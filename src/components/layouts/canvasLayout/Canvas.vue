@@ -17,7 +17,7 @@
   </canvas>
 </template>
 <script lang="ts" setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import useCanvas from "@/composables/useCanvas";
 import useTools from "@/composables/useTools";
 import type { SavedShape } from "@/composables/useCanvas";
@@ -60,6 +60,8 @@ onMounted(() => {
   ctx.value = canvas.value.getContext("2d") as CanvasRenderingContext2D;
 });
 
+const shouldCancelEdit = computed(() => !activeTool.value && !overShape.value);
+
 const handleClick = () => {
   if (!ctx.value) return;
   if (activeTool.value) {
@@ -68,27 +70,28 @@ const handleClick = () => {
       y: props.mousePosition.y,
     });
   }
+  if (overShape.value) {
+    clearAndRedrawTools();
+    editShape(overShape.value);
+    addCircleOnEdges(ctx.value, overShape.value);
+  }
+  if (shouldCancelEdit.value) {
+    cancelEditShape();
+  }
 };
 
 const handleMouseDown = () => {
   mousePressed.value = true;
-  if (overShape.value) {
-    editShape(overShape.value);
-  }
 };
 
 const handleMouseUp = () => {
   mousePressed.value = false;
-  if (overShape.value) {
-    overShape.value = null;
-    cancelEditShape();
-  }
 };
 
 const handleMouseMove = () => {
   requestAnimationFrame(() => {
     if (!ctx.value) return;
-    if (!activeTool.value && !drawing.value && !edit.value) {
+    if (!activeTool.value && !drawing.value) {
       const shape = findClosestShape(ctx.value, props.mousePosition);
       if (!shape) {
         if (overShape.value) overShape.value = null;
@@ -100,18 +103,21 @@ const handleMouseMove = () => {
       animateIncompletedTool(ctx.value);
       return;
     }
-    // if (edit.value && overShape.value) {
-    //   updateShapeCoords(overShape.value, props.mousePosition);
-    //   clearCanvas(ctx.value, { width: props.width, height: props.height });
-    //   redrawTools(ctx.value);
-    // }
+    if (edit.value) {
+      addCircleOnEdges(ctx.value, edit.value);
+    }
   });
 };
 
 const animateIncompletedTool = (ctx: CanvasRenderingContext2D) => {
-  clearCanvas(ctx, { width: props.width, height: props.height });
-  redrawTools(ctx);
+  clearAndRedrawTools();
   toolDraw(ctx, [...positions.value, props.mousePosition]);
+};
+
+const clearAndRedrawTools = () => {
+  if (!ctx.value) return;
+  clearCanvas(ctx.value, { width: props.width, height: props.height });
+  redrawTools(ctx.value);
 };
 
 watch(
@@ -119,11 +125,20 @@ watch(
   (overShape) => {
     if (!ctx.value) return;
     if (!overShape) {
-      clearCanvas(ctx.value, { height: props.height, width: props.width });
-      redrawTools(ctx.value);
+      clearAndRedrawTools();
+      if (edit.value) addCircleOnEdges(ctx.value, edit.value);
     }
     if (overShape) {
       addCircleOnEdges(ctx.value, overShape);
+    }
+  }
+);
+
+watch(
+  () => edit.value,
+  (isEditMode) => {
+    if (!isEditMode) {
+      clearAndRedrawTools();
     }
   }
 );
