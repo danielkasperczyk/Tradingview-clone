@@ -1,4 +1,4 @@
-import { reactive, ref } from "vue";
+import { ref } from "vue";
 import useTools from "@/composables/useTools";
 import { getTool } from "@/utils/canvasTools/utils";
 
@@ -7,14 +7,10 @@ type Position = {
   y: number;
 };
 
-type Positions = {
-  start: Position;
-  end: Position;
-};
-
 export type SavedShape = {
   toolId: string;
-  position: Positions;
+  position: Position[];
+  shapeId: string;
 };
 
 type CanvasSize = {
@@ -27,34 +23,26 @@ const savedShapes: SavedShape[] = [];
 const useCanvas = () => {
   const { activeTool, setActiveTool } = useTools();
   const drawing = ref(false);
-  const edit = ref(false);
-  const positions = reactive<Positions>({
-    start: {
-      x: 0,
-      y: 0,
-    },
-    end: {
-      x: 0,
-      y: 0,
-    },
-  });
+  const edit = ref<SavedShape | boolean>(false);
+  const positions = ref<Position[]>([]);
 
   const resetPosition = () => {
-    positions.start = { x: 0, y: 0 };
-    positions.end = { x: 0, y: 0 };
+    positions.value.length = 0;
   };
 
   const setPositions = (ctx: CanvasRenderingContext2D, position: Position) => {
     if (!activeTool.value) return;
     if (!drawing.value) {
       ctx.save();
-      positions.start = position;
+      positions.value.push(position);
       drawing.value = true;
     } else {
-      positions.end = position;
-      drawing.value = false;
+      if (activeTool.value.positionsRequired !== positions.value.length)
+        positions.value.push(position);
+      if (activeTool.value.positionsRequired === positions.value.length)
+        drawing.value = false;
       if (activeTool.value?.drawEnd) activeTool.value.drawEnd(ctx);
-      saveShape(activeTool.value.id, Object.assign({}, positions));
+      saveShape(activeTool.value.id, [...positions.value]);
       ctx.save();
       resetPosition();
       setActiveTool(null);
@@ -72,12 +60,13 @@ const useCanvas = () => {
     savedShapes.forEach((shape) => {
       const tool = getTool(shape.toolId);
       if (!tool) return;
-      tool.draw(ctx, shape.position.start, shape.position.end);
+      tool.draw(ctx, shape.position);
     });
   };
 
-  const saveShape = (toolId: string, position: Positions) => {
-    savedShapes.push({ toolId, position });
+  const saveShape = (toolId: string, position: Position[]) => {
+    const shapeId = savedShapes.length + "";
+    savedShapes.push({ toolId, position, shapeId });
   };
 
   const findClosestShape = (
@@ -95,14 +84,27 @@ const useCanvas = () => {
     return shape;
   };
 
-  const editShape = (
-    ctx: CanvasRenderingContext2D,
-    shape: SavedShape,
+  const editShape = (shape: SavedShape) => {
+    edit.value = shape;
+  };
+
+  const cancelEditShape = () => {
+    edit.value = false;
+  };
+
+  const updateShapeCoords = (
+    savedShape: SavedShape,
     mousePosition: Position
   ) => {
-    const tool = getTool(shape.toolId);
+    const tool = getTool(savedShape.toolId);
     if (!tool) return;
-    tool.addCirclesOnEdges(ctx, shape.position);
+    const savedShapeIndex = savedShapes.findIndex(
+      ({ shapeId }) => shapeId === savedShape.shapeId
+    );
+    savedShapes[savedShapeIndex].position = tool.updatePosition(
+      savedShape.position,
+      mousePosition
+    );
   };
 
   return {
@@ -114,6 +116,8 @@ const useCanvas = () => {
     redrawTools,
     findClosestShape,
     editShape,
+    cancelEditShape,
+    updateShapeCoords,
   };
 };
 

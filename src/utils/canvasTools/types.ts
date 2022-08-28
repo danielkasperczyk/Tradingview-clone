@@ -1,25 +1,25 @@
 type Icons = "default-icon" | "line-icon" | "cursor";
 
-type SavedToolPosition = {
-  start: Position;
-  end: Position;
-};
-
 export interface Tool {
   id: string;
   name: string;
   icon: Icons;
-  draw: (ctx: CanvasRenderingContext2D, start: Position, end: Position) => void;
+  positionsRequired: number;
+  draw: (ctx: CanvasRenderingContext2D, positions: Position[]) => void;
   drawEnd?: (ctx: CanvasRenderingContext2D) => void;
   mouseOver: (
     ctx: CanvasRenderingContext2D,
-    toolPosition: SavedToolPosition,
+    toolPosition: Position[],
     mousePosition: Position
   ) => boolean;
   addCirclesOnEdges: (
     ctx: CanvasRenderingContext2D,
-    toolPosition: SavedToolPosition
+    toolPosition: Position[]
   ) => void;
+  updatePosition: (
+    savedToolPosition: Position[],
+    mousePosition: Position
+  ) => Position[];
 }
 
 export interface Tools {

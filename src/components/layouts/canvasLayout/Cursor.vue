@@ -34,10 +34,8 @@ onMounted(() => {
 const createCursor = () => {
   if (!ctx.value) return;
   clearCanvas(ctx.value, { width: props.width, height: props.height });
-  cursor.draw(ctx.value, props.mousePosition, {
-    x: props.width,
-    y: props.height,
-  });
+  const positions = [props.mousePosition, { x: props.width, y: props.height }];
+  if (cursor.draw) cursor.draw(ctx.value, positions);
 };
 
 watch(

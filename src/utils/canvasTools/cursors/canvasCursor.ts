@@ -1,10 +1,12 @@
 import type { Tool } from "@/utils/canvasTools/types";
 
-const canvasCursor: Omit<Tool, "mouseOver"> = {
+const canvasCursor: Partial<Tool> = {
   id: "100",
   name: "Cursor",
   icon: "cursor",
-  draw(ctx, start, end) {
+  positionsRequired: 1,
+  draw(ctx, positions) {
+    const [start, end] = positions;
     ctx.strokeStyle = "#999999";
     // X AXIS
     ctx.beginPath();

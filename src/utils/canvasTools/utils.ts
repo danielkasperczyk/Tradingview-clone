@@ -15,3 +15,23 @@ export const isInToolCoords = (coords: Position[], mousePosition: Position) => {
     return xPos && yPos;
   });
 };
+
+export const isCloseTo = (coords: Position[], mousePosition: Position) => {
+  const tempCoords = [...coords];
+  const sortedCoords = tempCoords.sort((a, b) => {
+    const { x: aX, y: aY } = {
+      x: Math.abs(a.x - mousePosition.x),
+      y: Math.abs(a.y - mousePosition.y),
+    };
+    const { x: bX, y: bY } = {
+      x: Math.abs(b.x - mousePosition.x),
+      y: Math.abs(b.y - mousePosition.y),
+    };
+
+    return aX < bX && aY < bY ? -1 : 1;
+  });
+  const [closestCoord] = sortedCoords;
+  return coords.findIndex(
+    ({ x, y }) => x === closestCoord.x && y === closestCoord.y
+  );
+};
