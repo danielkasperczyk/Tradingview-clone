@@ -7,12 +7,17 @@
     </div>
     <aside class="content__right"></aside>
   </main>
+  <ModalSettings v-if="settingsStore.isSettingsOpen" />
 </template>
 
 <script lang="ts" setup>
 import { RouterView } from "vue-router";
 import Header from "@/components/layouts/panelLayout/Header.vue";
 import ToolsDrawer from "@/components/layouts/panelLayout/ToolsDrawer.vue";
+import ModalSettings from "@/components/layouts/panelLayout/modals/settings/ModalSettings.vue";
+import { useSettingsStore } from "@/stores/settings";
+
+const settingsStore = useSettingsStore();
 </script>
 
 <style lang="scss" scoped>
@@ -25,6 +30,8 @@ $panel-width: 160px;
 .content {
   display: flex;
   height: calc(100vh - $header-height);
+  position: relative;
+
   &__left,
   &__right {
     width: 100%;

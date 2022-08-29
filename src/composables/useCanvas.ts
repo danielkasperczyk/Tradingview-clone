@@ -18,12 +18,12 @@ type CanvasSize = {
   height: number;
 };
 
-const savedShapes: SavedShape[] = [];
+const savedShapes = ref<SavedShape[]>([]);
+const edit = ref<SavedShape | false>(false);
 
 const useCanvas = () => {
   const { activeTool, setActiveTool } = useTools();
   const drawing = ref(false);
-  const edit = ref<SavedShape | false>(false);
   const positions = ref<Position[]>([]);
 
   const resetPosition = () => {
@@ -39,10 +39,11 @@ const useCanvas = () => {
     } else {
       if (activeTool.value.positionsRequired !== positions.value.length)
         positions.value.push(position);
-      if (activeTool.value.positionsRequired === positions.value.length)
+      if (activeTool.value.positionsRequired === positions.value.length) {
         drawing.value = false;
-      if (activeTool.value?.drawEnd) activeTool.value.drawEnd(ctx);
-      saveShape(activeTool.value.id, [...positions.value]);
+        if (activeTool.value?.drawEnd) activeTool.value.drawEnd(ctx);
+        saveShape(activeTool.value.id, [...positions.value]);
+      }
       ctx.save();
       resetPosition();
       setActiveTool(null);
@@ -57,7 +58,7 @@ const useCanvas = () => {
   };
 
   const redrawTools = (ctx: CanvasRenderingContext2D) => {
-    savedShapes.forEach((shape) => {
+    savedShapes.value.forEach((shape) => {
       const tool = getTool(shape.toolId);
       if (!tool) return;
       tool.draw(ctx, shape.position);
@@ -65,16 +66,16 @@ const useCanvas = () => {
   };
 
   const saveShape = (toolId: string, position: Position[]) => {
-    const shapeId = savedShapes.length + "";
-    savedShapes.push({ toolId, position, shapeId });
+    const shapeId = savedShapes.value.length + "";
+    savedShapes.value.push({ toolId, position, shapeId });
   };
 
   const findClosestShape = (
     ctx: CanvasRenderingContext2D,
     mousePosition: Position
   ) => {
-    if (!savedShapes.length) return;
-    const overShapes = savedShapes.filter((shape) => {
+    if (!savedShapes.value.length) return;
+    const overShapes = savedShapes.value.filter((shape) => {
       const shapeTool = getTool(shape.toolId);
       if (!shapeTool) return false;
       return shapeTool.mouseOver(ctx, shape.position, mousePosition);
@@ -98,10 +99,10 @@ const useCanvas = () => {
   ) => {
     const tool = getTool(savedShape.toolId);
     if (!tool) return;
-    const savedShapeIndex = savedShapes.findIndex(
+    const savedShapeIndex = savedShapes.value.findIndex(
       ({ shapeId }) => shapeId === savedShape.shapeId
     );
-    savedShapes[savedShapeIndex].position = tool.updatePosition(
+    savedShapes.value[savedShapeIndex].position = tool.updatePosition(
       savedShape.position,
       mousePosition
     );

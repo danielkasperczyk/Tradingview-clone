@@ -8,6 +8,15 @@ body {
 *, *::after, *::before {
     box-sizing: border-box;
 }
+
+:root {
+    --primary: #0044ff;
+    --primary-light1: #4964ff;
+    --primary-light2:#7182ff;
+    --primary-light3: #9fa6ff;
+    --primary-light4: #c7c9ff;
+}
+
 button {
     border: none;
     outline: none;

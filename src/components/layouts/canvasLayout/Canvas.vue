@@ -88,16 +88,21 @@ const handleMouseUp = () => {
   mousePressed.value = false;
 };
 
+const closestShape = () => {
+  if (!ctx.value) return;
+  const shape = findClosestShape(ctx.value, props.mousePosition);
+  if (!shape) {
+    if (overShape.value) overShape.value = null;
+    return;
+  }
+  overShape.value = shape;
+};
+
 const handleMouseMove = () => {
   requestAnimationFrame(() => {
     if (!ctx.value) return;
     if (!activeTool.value && !drawing.value) {
-      const shape = findClosestShape(ctx.value, props.mousePosition);
-      if (!shape) {
-        if (overShape.value) overShape.value = null;
-        return;
-      }
-      overShape.value = shape;
+      closestShape();
     }
     if (activeTool.value && drawing.value) {
       animateIncompletedTool(ctx.value);
